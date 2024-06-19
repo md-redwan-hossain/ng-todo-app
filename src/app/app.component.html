@@ -33,7 +33,11 @@
                   </svg>
                 </button>
               }
-              <button (click)="addTodo()" type="button" class="btn btn-success btn-icon">
+              <button
+                (click)="addTodo()"
+                [disabled]="!todos.valid"
+                type="button"
+                class="btn btn-success btn-icon">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
