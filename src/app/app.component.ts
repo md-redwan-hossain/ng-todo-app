@@ -1,4 +1,6 @@
+import { filter } from "rxjs";
 import { Component, OnInit } from "@angular/core";
+import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
 import {
   FormControl,
   FormGroup,
@@ -6,13 +8,6 @@ import {
   ReactiveFormsModule,
   Validators
 } from "@angular/forms";
-import { filter } from "rxjs";
-import { InputGroupModule } from "primeng/inputgroup";
-import { InputGroupAddonModule } from "primeng/inputgroupaddon";
-import { InputTextModule } from "primeng/inputtext";
-import { CheckboxModule } from "primeng/checkbox";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
 
 interface TodoForm {
   title: FormControl<string>;
@@ -22,15 +17,7 @@ interface TodoForm {
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    InputGroupModule,
-    InputGroupAddonModule,
-    InputTextModule,
-    CheckboxModule,
-    TooltipModule
-  ],
+  imports: [ReactiveFormsModule, NgbTooltipModule],
   templateUrl: "./app.component.html",
   styleUrl: "./app.component.scss"
 })
@@ -47,6 +34,10 @@ export class AppComponent implements OnInit {
 
   idResolver(elem: string, index: number) {
     return elem.concat(index.toString());
+  }
+
+  completeCheckboxToolTipResolver(item: FormControl<boolean>) {
+    return item.value ? "Mark as not completed" : "Mark as completed";
   }
 
   addTodo(data?: TodoForm) {
