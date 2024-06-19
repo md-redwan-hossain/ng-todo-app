@@ -1,1 +1,14 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'primeng/resources/themes/aura-light-indigo/theme.css';
+@import 'primeng/resources/primeng.css';
+@import 'primeflex/primeflex.css';
+@import "primeicons/primeicons.css";
+@import "@tabler/core/dist/css/tabler.min.css";
+
+:root {
+  --tblr-font-sans-serif: "Inter", -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI,
+  Roboto, Helvetica Neue, sans-serif;
+}
+
+body {
+  font-feature-settings: "cv03", "cv04", "cv11";
+}
