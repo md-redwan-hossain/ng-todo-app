@@ -10,8 +10,12 @@
           </div>
           <div class="card-actions">
             <div class="btn-list">
-              @if (todos.valid && todos.length > 1) {
-                <button type="button" class="btn btn-primary btn-icon" (click)="sortTodos()">
+              @if (todos.length > 1) {
+                <button
+                  [disabled]="!todos.valid"
+                  (click)="sortTodos()"
+                  type="button"
+                  class="btn btn-primary btn-icon">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -67,8 +71,8 @@
                         class="form-check-input m-0" />
                     </span>
                     <input
-                      [formControl]="todo.controls.title"
                       [id]="idResolver('title', todo.controls.id.getRawValue())"
+                      [formControl]="todo.controls.title"
                       type="text"
                       class="form-control"
                       autocomplete="off" />
