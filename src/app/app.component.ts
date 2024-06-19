@@ -1,6 +1,6 @@
-import { filter } from "rxjs";
+import { filter, Subscription } from "rxjs";
 import { ulid } from "ulid";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
 import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Todo, TodoForm } from "./todo.model";
@@ -12,10 +12,11 @@ import { Todo, TodoForm } from "./todo.model";
   templateUrl: "./app.component.html",
   styleUrl: "./app.component.scss"
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   constructor(private readonly formBuilder: NonNullableFormBuilder) {}
 
   sortFlag: boolean = false;
+  formChange$: Subscription | undefined;
 
   todoContainerForm = this.formBuilder.group({
     todos: this.formBuilder.array<FormGroup<TodoForm>>([])
@@ -62,8 +63,14 @@ export class AppComponent implements OnInit {
       JSON.parse(formData).forEach((item: Todo) => this.addTodo(item));
     }
 
-    this.todoContainerForm.valueChanges
+    this.formChange$ = this.todoContainerForm.valueChanges
       .pipe(filter(() => this.todoContainerForm.valid))
       .subscribe((val) => localStorage.setItem("TODO_DATA", JSON.stringify(val.todos)));
+  }
+
+  ngOnDestroy(): void {
+    if (this.formChange$) {
+      this.formChange$.unsubscribe();
+    }
   }
 }
