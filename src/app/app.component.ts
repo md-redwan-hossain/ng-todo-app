@@ -15,7 +15,7 @@ import { Todo, TodoForm } from "./todo.model";
 export class AppComponent implements OnInit {
   constructor(private readonly formBuilder: NonNullableFormBuilder) {}
 
-  sorted: boolean = false;
+  sortFlag: boolean = false;
 
   todoContainerForm = this.formBuilder.group({
     todos: this.formBuilder.array<FormGroup<TodoForm>>([])
@@ -28,13 +28,13 @@ export class AppComponent implements OnInit {
   sortTodos() {
     if (this.todos.value.length > 1) {
       const arr = this.todos.value.sort((a, b) => {
-        if (this.sorted) {
+        if (this.sortFlag) {
           return a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? 1 : -1;
         } else {
           return a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? -1 : 1;
         }
       });
-      this.sorted = !this.sorted;
+      this.sortFlag = !this.sortFlag;
       this.todos.patchValue(arr);
     }
   }
