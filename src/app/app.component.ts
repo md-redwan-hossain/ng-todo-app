@@ -1,18 +1,9 @@
 import { filter } from "rxjs";
+import { ulid } from "ulid";
 import { Component, OnInit } from "@angular/core";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
-import {
-  FormControl,
-  FormGroup,
-  NonNullableFormBuilder,
-  ReactiveFormsModule,
-  Validators
-} from "@angular/forms";
-
-interface TodoForm {
-  title: FormControl<string>;
-  isCompleted: FormControl<boolean>;
-}
+import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Todo, TodoForm } from "./todo.model";
 
 @Component({
   selector: "app-root",
@@ -24,6 +15,8 @@ interface TodoForm {
 export class AppComponent implements OnInit {
   constructor(private readonly formBuilder: NonNullableFormBuilder) {}
 
+  sorted: boolean = false;
+
   todoContainerForm = this.formBuilder.group({
     todos: this.formBuilder.array<FormGroup<TodoForm>>([])
   });
@@ -32,16 +25,23 @@ export class AppComponent implements OnInit {
     return this.todoContainerForm.controls.todos;
   }
 
-  idResolver(elem: string, index: number) {
-    return elem.concat(index.toString());
+  sortTodos() {
+    if (this.todos.value.length > 1) {
+      const arr = this.todos.value.sort((a, b) => {
+        if (this.sorted) {
+          return a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? 1 : -1;
+        } else {
+          return a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? -1 : 1;
+        }
+      });
+      this.sorted = !this.sorted;
+      this.todos.patchValue(arr);
+    }
   }
 
-  completeCheckboxToolTipResolver(item: FormControl<boolean>) {
-    return item.value ? "Mark as not completed" : "Mark as completed";
-  }
-
-  addTodo(data?: TodoForm) {
+  addTodo(data?: Todo) {
     const itemForm = this.formBuilder.group({
+      id: [data?.id || ulid(), Validators.required],
       title: [data?.title || "", Validators.required],
       isCompleted: [data?.isCompleted || false, Validators.required]
     });
@@ -52,10 +52,14 @@ export class AppComponent implements OnInit {
     this.todos.removeAt(todoIndex);
   }
 
+  idResolver(elem: string, id: string) {
+    return elem.concat(id);
+  }
+
   ngOnInit() {
     const formData = localStorage.getItem("TODO_DATA");
     if (formData) {
-      JSON.parse(formData).forEach((item: TodoForm) => this.addTodo(item));
+      JSON.parse(formData).forEach((item: Todo) => this.addTodo(item));
     }
 
     this.todoContainerForm.valueChanges
