@@ -16,7 +16,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private readonly formBuilder: NonNullableFormBuilder) {}
 
   sortFlag: boolean = false;
-  formChange$: Subscription | undefined;
+  formChange: Subscription | undefined;
 
   todoContainerForm = this.formBuilder.group({
     todos: this.formBuilder.array<FormGroup<TodoForm>>([])
@@ -63,14 +63,14 @@ export class AppComponent implements OnInit, OnDestroy {
       JSON.parse(formData).forEach((item: Todo) => this.addTodo(item));
     }
 
-    this.formChange$ = this.todoContainerForm.valueChanges
+    this.formChange = this.todoContainerForm.valueChanges
       .pipe(filter(() => this.todoContainerForm.valid))
       .subscribe((val) => localStorage.setItem("TODO_DATA", JSON.stringify(val.todos)));
   }
 
   ngOnDestroy(): void {
-    if (this.formChange$) {
-      this.formChange$.unsubscribe();
+    if (this.formChange) {
+      this.formChange.unsubscribe();
     }
   }
 }
