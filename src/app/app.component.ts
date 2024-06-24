@@ -1,6 +1,13 @@
 import { filter, Subscription } from "rxjs";
 import { ulid } from "ulid";
-import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal
+} from "@angular/core";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
 import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Todo, TodoForm } from "./todo.model";
@@ -10,14 +17,15 @@ import { Todo, TodoForm } from "./todo.model";
   standalone: true,
   imports: [ReactiveFormsModule, NgbTooltipModule],
   templateUrl: "./app.component.html",
-  styleUrl: "./app.component.scss"
+  styleUrl: "./app.component.scss",
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit, OnDestroy {
   private readonly formBuilder = inject(NonNullableFormBuilder);
 
+  private formChange: Subscription | undefined;
   sortFlag = signal(false);
   canSort = signal(false);
-  formChange: Subscription | undefined;
 
   todoContainerForm = this.formBuilder.group({
     todos: this.formBuilder.array<FormGroup<TodoForm>>([])
