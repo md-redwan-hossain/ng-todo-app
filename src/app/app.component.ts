@@ -1,6 +1,6 @@
 import { filter, Subscription } from "rxjs";
 import { ulid } from "ulid";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit, signal } from "@angular/core";
 import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
 import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Todo, TodoForm } from "./todo.model";
@@ -13,9 +13,9 @@ import { Todo, TodoForm } from "./todo.model";
   styleUrl: "./app.component.scss"
 })
 export class AppComponent implements OnInit, OnDestroy {
-  constructor(private readonly formBuilder: NonNullableFormBuilder) {}
+  private readonly formBuilder = inject(NonNullableFormBuilder);
 
-  sortFlag: boolean = false;
+  sortFlag = signal(false);
   formChange: Subscription | undefined;
 
   todoContainerForm = this.formBuilder.group({
@@ -29,13 +29,13 @@ export class AppComponent implements OnInit, OnDestroy {
   sortTodos() {
     if (this.todos.value.length > 1) {
       const arr = this.todos.value.sort((a, b) => {
-        if (this.sortFlag) {
+        if (this.sortFlag()) {
           return a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? 1 : -1;
         } else {
           return a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? -1 : 1;
         }
       });
-      this.sortFlag = !this.sortFlag;
+      this.sortFlag.update((val) => !val);
       this.todos.patchValue(arr);
     }
   }
