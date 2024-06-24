@@ -16,6 +16,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly formBuilder = inject(NonNullableFormBuilder);
 
   sortFlag = signal(false);
+  canSort = signal(false);
   formChange: Subscription | undefined;
 
   todoContainerForm = this.formBuilder.group({
@@ -27,7 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   sortTodos() {
-    if (this.todos.value.length > 1) {
+    if (this.canSort()) {
       const arr = this.todos.value.sort((a, b) => {
         if (this.sortFlag()) {
           return a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? 1 : -1;
@@ -65,7 +66,28 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.formChange = this.todoContainerForm.valueChanges
       .pipe(filter(() => this.todoContainerForm.valid))
-      .subscribe((val) => localStorage.setItem("TODO_DATA", JSON.stringify(val.todos)));
+      .subscribe((val) => {
+        localStorage.setItem("TODO_DATA", JSON.stringify(val.todos));
+
+        if (this.todos.value.length > 1) {
+          let hasTrue = false;
+          let hasFalse = false;
+
+          for (const obj of this.todos.value) {
+            if (obj.isCompleted) {
+              hasTrue = true;
+            } else if (!obj.isCompleted) {
+              hasFalse = true;
+            }
+          }
+
+          if (hasTrue && hasFalse) {
+            this.canSort.set(true);
+          } else {
+            this.canSort.set(false);
+          }
+        }
+      });
   }
 
   ngOnDestroy(): void {
