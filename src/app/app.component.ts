@@ -1,3 +1,6 @@
+import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
+import { Todo, TodoForm } from "./todo.model";
 import { filter, Subscription } from "rxjs";
 import { ulid } from "ulid";
 import {
@@ -8,9 +11,6 @@ import {
   OnInit,
   signal
 } from "@angular/core";
-import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
-import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Todo, TodoForm } from "./todo.model";
 
 @Component({
   selector: "app-root",
@@ -24,8 +24,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly formBuilder = inject(NonNullableFormBuilder);
 
   private formChange: Subscription | undefined;
-  sortFlag = signal(false);
-  canSort = signal(false);
+  readonly canSort = signal(false);
+  private sortFlag = false;
 
   todoContainerForm = this.formBuilder.group({
     todos: this.formBuilder.array<FormGroup<TodoForm>>([])
@@ -38,13 +38,13 @@ export class AppComponent implements OnInit, OnDestroy {
   sortTodos() {
     if (this.canSort()) {
       const arr = this.todos.value.sort((a, b) => {
-        if (this.sortFlag()) {
+        if (this.sortFlag) {
           return a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? 1 : -1;
         } else {
           return a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? -1 : 1;
         }
       });
-      this.sortFlag.update((val) => !val);
+      this.sortFlag = !this.sortFlag;
       this.todos.patchValue(arr);
     }
   }
