@@ -1,29 +1,29 @@
-import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
-import { Todo, TodoForm } from "./todo.model";
-import { filter, Subscription } from "rxjs";
-import { ulid } from "ulid";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
-  OnDestroy,
   OnInit,
   signal
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { NgbTooltipModule } from "@ng-bootstrap/ng-bootstrap";
+import { filter } from "rxjs";
+import { ulid } from "ulid";
+import { Todo, TodoForm } from "./todo.model";
 
 @Component({
   selector: "app-root",
   standalone: true,
   imports: [ReactiveFormsModule, NgbTooltipModule],
   templateUrl: "./app.component.html",
-  styleUrl: "./app.component.scss",
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
-  private formChange: Subscription | undefined;
   readonly canSort = signal(false);
   private sortFlag = false;
 
@@ -72,8 +72,11 @@ export class AppComponent implements OnInit, OnDestroy {
       JSON.parse(formData).forEach((item: Todo) => this.addTodo(item));
     }
 
-    this.formChange = this.todoContainerForm.valueChanges
-      .pipe(filter(() => this.todoContainerForm.valid))
+    this.todoContainerForm.valueChanges
+      .pipe(
+        filter(() => this.todoContainerForm.valid),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe((val) => {
         localStorage.setItem("TODO_DATA", JSON.stringify(val.todos));
 
@@ -96,11 +99,5 @@ export class AppComponent implements OnInit, OnDestroy {
           }
         }
       });
-  }
-
-  ngOnDestroy(): void {
-    if (this.formChange) {
-      this.formChange.unsubscribe();
-    }
   }
 }
